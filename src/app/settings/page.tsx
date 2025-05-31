@@ -13,7 +13,6 @@ export default function SettingsPage() {
 
   const [email, setEmail] = useState(session?.user.email || "");
   const [newEmail, setNewEmail] = useState("");
-  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
