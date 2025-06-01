@@ -1,37 +1,53 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-
 import HomeIcon from "@mui/icons-material/Home";
 import SettingsIcon from "@mui/icons-material/Settings";
-import { useAuth } from "@/context/auth-context";
+import AddBoxIcon from "@mui/icons-material/AddBox";
+import { FC, ReactNode, useState } from "react";
+import UploadModal from "./UploadModal";
 
-export default function NavBar({ children }: { children: React.ReactNode }) {
-  const { session, loading } = useAuth();
+interface NavBarProps {
+  children: ReactNode;
+}
+
+const NavBar: FC<NavBarProps> = ({ children }) => {
   const router = useRouter();
+  const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
-    if (!loading && !session) {
-      router.push("/auth/login");
-    }
-  }, [loading, session, router]);
-
-  if (loading || !session) return null;
+  const handleUploadSuccess = () => {
+    // You can optionally trigger a refresh or toast
+    console.log("Upload successful!");
+  };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white">
-      <nav className="w-full bg-gray-800 text-white p-4 flex items-center justify-between">
+    <>
+      <nav className="fixed top-0 w-full bg-gray-800 text-white p-4 flex items-center justify-between z-50">
         <button onClick={() => router.push("/dashboard")}>
           <HomeIcon />
         </button>
-        <h1 className="text-xl font-bold">RevSpot</h1>
+
+        <button onClick={() => setShowModal(true)}>
+          <AddBoxIcon />
+        </button>
+
+        <div className="text-xl font-bold">RevSpot</div>
+
         <button onClick={() => router.push("/settings")}>
           <SettingsIcon />
         </button>
       </nav>
 
-      <main className="p-4">{children}</main>
-    </div>
+      <main className="pt-20">{children}</main>
+
+      {/* Upload Modal */}
+      <UploadModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onUploadSuccess={handleUploadSuccess}
+      />
+    </>
   );
-}
+};
+
+export default NavBar;

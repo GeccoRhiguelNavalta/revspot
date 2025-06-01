@@ -3,7 +3,7 @@ import { Toaster } from "sonner";
 
 export const metadata = {
   title: "RevSpot",
-  description: "Instagram for car spotters",
+  description: "Share you car photos!",
 };
 
 export default function RootLayout({

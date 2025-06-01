@@ -11,6 +11,10 @@ export default function SettingsPage() {
   const { session } = useAuth();
   const router = useRouter();
 
+  const [username, setUsername] = useState(
+    session?.user.user_metadata.display_name || ""
+  );
+  const [newUsername, setNewUsername] = useState("");
   const [email, setEmail] = useState(session?.user.email || "");
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -23,6 +27,23 @@ export default function SettingsPage() {
     } else {
       toast.success("Logged out");
       router.push("/auth/login");
+    }
+  };
+
+  const handleChangeUsername = async () => {
+    if (!newUsername) {
+      toast.error("Username cannot be empty.");
+      return;
+    }
+    const { error } = await supabase.auth.updateUser({
+      data: { newUsername },
+    });
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("Username updated!");
+      setUsername(newUsername);
+      setNewUsername("");
     }
   };
 
@@ -68,6 +89,32 @@ export default function SettingsPage() {
       <div className="min-h-screen flex items-center justify-center bg-slate-900">
         <div className="bg-white text-black rounded-xl p-6 shadow-lg w-full max-w-md space-y-6">
           <h1 className="text-2xl font-bold text-center">Settings</h1>
+
+          {/* Change Username */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Current Username
+            </label>
+            <input
+              type="text"
+              value={username}
+              disabled
+              className="w-full border p-2 rounded bg-gray-100 mb-2"
+            />
+            <input
+              type="email"
+              placeholder="New Username"
+              className="w-full border p-2 rounded mb-2"
+              value={newUsername}
+              onChange={(e) => setNewUsername(e.target.value)}
+            />
+            <button
+              onClick={handleChangeUsername}
+              className="w-full bg-blue-600 text-white p-2 rounded"
+            >
+              Change Username
+            </button>
+          </div>
 
           {/* Change Email */}
           <div>

@@ -1,6 +1,6 @@
 # RevSpot
 
-Instagram-style platform for car spotters to share and discover supercar photos.
+Platform for car spotters to share and discover car photos.
 
 > ⚠️ **Note:** RevSpot is currently under active development and not all features are fully implemented yet.
 
@@ -19,7 +19,7 @@ Instagram-style platform for car spotters to share and discover supercar photos.
 ## 📂 Features (Planned & In Progress)
 
 - 🔐 Auth (Sign up / Sign in with Supabase)
-- 📸 Upload and browse car spotting photos
+- 📸 Upload car spotting photos
 - 🏠 Protected pages
 - ⚙️ Profile management (change email/password)
 - 🌙 Dark mode
