@@ -1,38 +1,52 @@
+import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabaseClient";
+import jwt from "jsonwebtoken";
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const { title, image_path } = await request.json();
+    const { title, image_path } = await req.json();
 
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader)
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const authHeader = req.headers.get("authorization") || "";
+    const token = authHeader.replace("Bearer ", "");
 
-    const token = authHeader.split(" ")[1];
+    if (!token) {
+      return NextResponse.json({ error: "No auth token" }, { status: 401 });
+    }
 
-    // Validate user token and get user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser(token);
+    // Decode the token to get user id
+    const decoded = jwt.decode(token) as { sub?: string } | null;
+    const userId = decoded?.sub;
 
-    if (userError || !user)
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!userId) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
 
-    const { error: insertError } = await supabase.from("posts").insert([
+    // Create supabase client with token (no auth methods available)
+    const supabaseUser = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
-        title,
-        image_path,
-        user_id: user.id,
-      },
-    ]);
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false,
+        },
+        accessToken: () => Promise.resolve(token),
+      }
+    );
 
-    if (insertError)
-      return NextResponse.json({ error: insertError.message }, { status: 500 });
+    const { error } = await supabaseUser.from("posts").insert({
+      title,
+      image_path,
+      user_id: userId,
+    });
 
-    return NextResponse.json({ message: "Post created" });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

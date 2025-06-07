@@ -59,6 +59,7 @@ export default function UploadModal({
       body: JSON.stringify({
         title,
         image_path: uploadData?.path,
+        user_id: session.user.id,
       }),
     });
 
